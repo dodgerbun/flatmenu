@@ -23,7 +23,7 @@ flatmenu [-d] [-m menudir] [-h] [-e] [-x] [-l src -n name]
  -m - use custom directory for menu
       menudir: default: /home/dodger/.menus, then /usr/bin
  -h - display this help and exit
- -e - generate example menu in /home/dodger/.menus and exit
+ -e - generate example menu in /home/(user)/.menus and exit
  -x - set everything in menudir to executable (risky business) and exit.
  -l, -n - symlink src (must be absolute path, but supports ~) to name in the menu dir and exit
        ex. flatmenu -l ~/scripts/script.sh -n "Run my script plz"
