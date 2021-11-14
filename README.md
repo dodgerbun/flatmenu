@@ -27,4 +27,4 @@ flatmenu [-d] [-m menudir] [-h] [-e] [-x] [-l src -n name]
 
 Screenshot:
 
-https://github.com/dodgerbun/flatmenu/blob/main/sc1.png
+![screenshot](https://github.com/dodgerbun/flatmenu/blob/main/sc1.png)
