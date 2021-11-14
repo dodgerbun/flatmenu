@@ -24,3 +24,7 @@ flatmenu [-d] [-m menudir] [-h] [-e] [-x] [-l src -n name]
  -l, -n - symlink src (must be absolute path, but supports ~) to name in the menu dir and exit
        ex. flatmenu -l ~/scripts/script.sh -n "Run my script plz"
 ```
+
+Screenshot:
+
+[file:./sc1.png]
