@@ -27,4 +27,4 @@ flatmenu [-d] [-m menudir] [-h] [-e] [-x] [-l src -n name]
 
 Screenshot:
 
-http://files.kebles.com/jEjU2/CoFoJOwI35.png/raw
+[file:http://files.kebles.com/jEjU2/CoFoJOwI35.png/raw]
