@@ -1,6 +1,10 @@
-# flatmenu
+# flatmenu/fm
 
-A simple stateless filesystem-based menu for dmenu and rofi allowing you to recursively navigate a directory of shortcuts or executables and launch what you land on. It is especially useful to throw on a keybinding for your WM to avoid coding custom menus with hierarchies. Simply make text files or shell scripts (or symlinks thereof) in ~/.menus (or wherever you specify with -m). Categorize with directories, your only limit is your filesystem's naming requirements.
+A simple stateless filesystem-based menu for dmenu and rofi allowing you to recursively navigate a directory of shortcuts or executables and launch what you land on. It is especially useful to throw on a keybinding for your WM to avoid coding custom menus with hierarchies.
+
+Simply make text files or shell scripts (or symlinks thereof) in ~/.menus (or wherever you specify with -m). Categorize with directories, your only limit is your filesystem's naming requirements.
+
+I recommend making a symlink in /usr/bin, or an alias in your shell for the default fm, and one for fm -m .
 
 Requirements: php (tested on 8.0.12)
 dmenu or rofi, or other launcher that takes stdin split by newlines.
