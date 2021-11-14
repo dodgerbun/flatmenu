@@ -1,0 +1,146 @@
+#!/usr/bin/env php
+<?php
+
+# flatmenu 0.1 by kebles, dodger
+# kebles.com
+# git.vore.us/dodger
+# github.com/dodgerbun
+
+
+$cmd = getopt("dm:hexl:n:");
+exec('echo -e $HOME', $hom);
+$hdir = $hom[0];
+if (isset($cmd['h'])) {
+    echo "flatmenu - display a menu from a directory of flat executable files\n\n";
+    echo "fill a directory with executables, shell scripts, etc and get\n";
+    echo "a simple choice which to run. The filename is your menu entry name and \n";
+    echo "its contents will be executed by the current user (if they have execute permission).\n";
+    echo "You can navigate directory structure as well. You will only be shown executable items.\n\n";
+    echo "usage: \nflatmenu [-d] [-m menudir] [-h] [-e] [-x] [-l src -n name]\n";
+    echo " -d - use dmenu instead of rofi (default: rofi if available, then dmenu)\n";
+    echo " -m - use custom directory for menu \n";
+    echo "      menudir: default: $hdir/.menus, then /usr/bin\n";
+    echo " -h - display this help and exit\n";
+    echo " -e - generate example menu in $hdir/.menus and exit\n";
+    echo " -x - set everything in menudir to executable (risky business) and exit.\n";
+    echo " -l, -n - symlink src (must be absolute path, but supports ~) to name in the menu dir and exit\n";
+    echo "       ex. flatmenu -l ~/scripts/script.sh -n \"Run my script plz\"\n\n";
+    exit();
+}
+if (isset($cmd['e'])) {
+    if (!dir("$hdir/.menus")) {
+        mkdir("$hdir/.menus");
+    }
+    $emi = fopen("$hdir/.menus/Thunar file manager.", "w");
+    fwrite($emi, "thunar");
+    fclose($emi);
+    $emi = fopen("$hdir/.menus/Open URL on clipboard in Firefox.", "w");
+    fwrite($emi, 'firefox "`xclip -o`"');
+    fclose($emi);
+    $emi = fopen("$hdir/.menus/Push a silent commit to your dotfiles.", "w");
+    fwrite($emi, "cd ~/.dotfiles && git add * && git commit -mAuto && git push");
+    fclose($emi);
+    shell_exec("chmod +x $hdir/.menus/*");
+    echo "Wrote example menus. Exitting.";
+    exit();
+}
+if (isset($cmd['d'])) {
+    $dmenu = "dmenu";
+    if (strpos(shell_exec("which dmenu"), "not found")) {
+        if (strpos(shell_exec("which rofi"), "not found")) {
+            echo "rofi and dmenu not found. exitting. ";
+            exit();
+        } else {
+            $dmenu = "rofi -dmenu";
+        }
+    } else {
+        $dmenu = "dmenu";
+    }
+} else {
+    $dmenu = "rofi -dmenu";
+    if (strpos(shell_exec("which rofi"), "not found")) {
+        if (strpos(shell_exec("which dmenu"), "not found")) {
+            echo "rofi and dmenu not found. exitting. ";
+            exit();
+        } else {
+            $dmenu = "dmenu";
+        }
+    } else {
+        $dmenu = "rofi -dmenu";
+    }
+}
+
+if (!isset($cmd['m'])) {
+    $fdir = $hdir . "/.menus";
+} else {
+    $fdir = $cmd['m'];
+}
+if (isset($cmd['x'])) {
+    echo (shell_exec("chmod -R +x $fdir/*"));
+    exit();
+}
+if (isset($cmd['l'])) {
+    if ($cmd['l'] == "") {
+        echo "No link info specified. ";
+        exit();
+    }
+    if (isset($cmd['n'])) {
+        echo (shell_exec('ln -s ' . $cmd['l'] . ' "' . $fdir . '/' . $cmd['n'] . '"'));
+    } else {
+        echo "No destination for link specified. ";
+    }
+    exit();
+}
+if (!dir($fdir)) {
+    echo "Error opening specified menu folder. using baked-in default.\n";
+    $smen = glob("/usr/bin/*");
+    $fdir = "/usr/bin";
+} else {
+    $smen = glob($fdir . "/*");
+}
+$scat = "";
+for ($i = 0; $i < count($smen); $i = $i + 1) {
+    exec("basename '" . $smen[$i] . "'", $bname);
+    if (is_executable($smen[$i])) {
+        $scat = $scat . $bname[0] . "\n";
+    }
+    $bname = 0;
+}
+
+exec("echo '" . $scat . "' | " . $dmenu, $rofi);
+
+if (!isset($rofi[0])) {
+    echo "No option selected, exitting.\n";
+    exit();
+}
+if (dir($fdir . "/" . $rofi[0])) {
+    while (dir($fdir . "/" . $rofi[0])) {
+        $fdir = $fdir . "/" . $rofi[0];
+        $smen = glob($fdir . "/*");
+        $scat = "";
+        for ($i = 0; $i < count($smen); $i = $i + 1) {
+            exec("basename '" . $smen[$i] . "'", $bname);
+            if (is_executable($smen[$i])) {
+                $scat = $scat . $bname[0] . "\n";
+            }
+            $bname = 0;
+        }
+        $rofi = 0;
+        exec("echo '" . $scat . "' | " . $dmenu, $rofi);
+        if (!isset($rofi[0])) {
+            echo "Nothing selected, exitting.\n\n";
+            exit();
+        }
+    }
+}
+echo "launching " . $fdir . "/" . $rofi[0] . "\n";
+$fs = filesize($fdir . "/" . $rofi[0]);
+if ($fs) {
+    if (is_executable($fdir . "/" . $rofi[0])) {
+        $hc = fopen($fdir . "/" . $rofi[0], "r");
+        $out = shell_exec(fread($hc, $fs));
+        fclose($hc);
+    } else {
+        shell_exec('echo "Item not executable by the current user." | ' .  $dmenu);
+    }
+}
